@@ -17,6 +17,7 @@ library(parallel)
 cl <- parallel::makeCluster(4, setup_timeout = 0.5)
 doParallel::registerDoParallel(cl)
 
+## Function to sample from multiple PDFs
 randomTraits <- function(n = 1, means, sds) {
   if (length(means) != length(sds)) {stop("Means and SDs not equal")}
   ntraits = length(means)
@@ -30,6 +31,11 @@ randomTraits <- function(n = 1, means, sds) {
     }
   }
   return(trait.out)
+}
+
+## Function to fix the output from foreach
+comb <- function(...) {
+  mapply('cbind', ..., SIMPLIFY=FALSE)
 }
 
 ## First get the trait values
@@ -55,27 +61,27 @@ dat = dat %>%
 dat = dat %>% 
   filter(grp=="TRSH" | grp=="LIAN" | grp=="DWAR" | grp=="HERB")
 
-sites = unique(sort(dat$ent))
-nsites = length(sites)
+samps = unique(sort(dat$sample))
+nsamps = length(samps)
 
 ## Resampling iterations
-nbit = 500
+nbit = 1000
 
 ## Output
-out.hv = rep(NA, nsites)
-out.rnd = array(NA, dim = c(nsites, nbit))
-out.crds = data.frame(lon=rep(NA, nsites), 
-                      lat=rep(NA, nsites), 
-                      alt=rep(NA, nsites))
-trait.mean = array(NA, dim = c(nsites, 3))
-trait.rnd = array(NA, dim = c(nsites, 3, nbit))
+out.hv = rep(NA, nsamps)
+out.rnd = array(NA, dim = c(nsamps, nbit))
+out.crds = data.frame(lon=rep(NA, nsamps), 
+                      lat=rep(NA, nsamps), 
+                      alt=rep(NA, nsamps))
+trait.mean = array(NA, dim = c(nsamps, 3))
+trait.rnd = array(NA, dim = c(nsamps, 3, nbit))
 
 ## Now loop through by site
-for (i in 1:nsites) {
+for (i in 1:nsamps) {
   # for (i in 1:2) {
-  print(paste("Doing site", i, sites[i]))
+  print(paste("Doing sample", i, samps[i]))
   site.dat = dat %>% 
-    filter(ent == sites[i])
+    filter(sample == samps[i])
   
   ## Loop to remove low values
   nsd = dim(site.dat)[1]
@@ -109,7 +115,7 @@ for (i in 1:nsites) {
     ## Resampling loop - runs in parallel using foreach 
     ## Set up cores above ^
     # out.rnd[i,j,] <- foreach(k=1:nbit, .combine = 'c') %do% {
-    oper <- foreach (j=1:nbit, .combine = 'c', .packages='hypervolume') %dopar% {
+    oper <- foreach (j=1:nbit, .combine='comb', .multicombine=TRUE, .packages='hypervolume') %dopar% {
       ## Get random traits
       trait.dat = data.frame(lsla = randomTraits(means = site.dat$lsla.mn, 
                                                  sds = site.dat$lsla.sd),
@@ -141,16 +147,17 @@ for (i in 1:nsites) {
       list(samp.hv@Volume, trait.rnd.tmp)
       
     } # Resample loop 
+    
     out.rnd[i,] <- oper[[1]]
     trait.rnd[i,,] <- oper[[2]]
   } # Sample check
   
   
 } # Site loop
-save(sites, out.hv, out.rnd, out.crds, trait.mean, trait.rnd,
+save(samps, out.hv, out.rnd, out.crds, trait.mean, trait.rnd,
      #nbit=1000
      # file="nampdTraits_alpha_all.RData")
-     file="nampdTraits_alpha_all_nbit500.RData")
+     file="carana_alpha.RData")
 
 
 
