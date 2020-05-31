@@ -65,7 +65,7 @@ samps = unique(sort(dat$sample))
 nsamps = length(samps)
 
 ## Resampling iterations
-nbit = 1000
+nbit = 500
 
 ## Output
 out.hv = rep(NA, nsamps)
