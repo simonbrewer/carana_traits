@@ -13,11 +13,6 @@ dat = read.csv("./NativeCarana_6traitsBIEN.csv")
 dat = dat %>%
   select(sppID = ID, scrubbed_species_binomial, leafarea, plantheight, seedmass)
 
-# dat$leafarea = as.numeric(dat$leafarea)
-# dat$plantheight[which(dat$plantheight == ".")] <- "-9999"
-# dat$plantheight = as.numeric(dat$plantheight)
-# dat$seedmass = as.numeric(dat$seedmass)
-# 
 dat$leafarea[dat$leafarea == -9999] <- NA
 dat$plantheight[dat$plantheight == -9999] <- NA
 dat$seedmass[dat$seedmass == -9999] <- NA
