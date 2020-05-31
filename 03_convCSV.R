@@ -1,2 +1,2 @@
-dat = read.csv("nampdPollTraitVals.csv")
-save(dat, file="nampdPollTraitVals.RData")
+dat = read.csv("caranaPollTraitVals.csv")
+save(dat, file="caranaPollTraitVals.RData")
