@@ -25,6 +25,7 @@ nvars = length(pvars)
 ptaxoncode = dat[2,-seq(1:7)]
 grps = unlist(dat[4,-seq(1:7)])
 
+agebp = as.numeric(dat[-seq(1:4),2])
 ent = dat[-seq(1:4),4]
 lon = dat[-seq(1:4),6]
 lat = dat[-seq(1:4),5]
@@ -56,8 +57,8 @@ for (j in 1:nvars) {
 ## Vectorize the pollen
 nsamp = dim(poll)[1]
 poll.df = data.frame(ent = rep(ent, each = nvars),
-                     sample = rep(1, each = nsamp * nvars),
-                     agebp = rep(0, each = nsamp * nvars),
+                     sample = rep(1:nsamp, each = nvars),
+                     agebp = rep(agebp, each = nvars),
                      lon = rep(lon, each = nvars),
                      lat = rep(lat, each = nvars),
                      alt = rep(alt, each = nvars),
