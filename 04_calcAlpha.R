@@ -57,10 +57,6 @@ trait.sd = c(sd(dat$lsla.mn, na.rm = TRUE),
 dat = dat %>%
   filter(!is.na(lsla.mn) & !is.na(lhgt.mn) & !is.na(lsdm.mn))
 
-## Only trees
-dat = dat %>% 
-  filter(grp=="TRSH" | grp=="LIAN" | grp=="DWAR" | grp=="HERB")
-
 samps = unique(sort(dat$sample))
 nsamps = length(samps)
 
